@@ -1,12 +1,23 @@
 import './App.css';
 import React, { Component } from 'react'
-
+import NavBar from './components/NavBar.js'
+import News from './components/News.js';
 export default class App extends Component {
+  
   render() {
+    
     return (
+      
+
+      
       <div>
-        Hellp my first class based component
+        <NavBar/>
+        <News pageSize={5}/>
       </div>
+      
     )
   }
 }
+
+
+
