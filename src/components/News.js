@@ -1,20 +1,57 @@
 import React, { Component } from "react";
 import NewsItem from "./NewsItem";
 import { Spinner } from "../components/Spinner";
+import { PropTypes } from "prop-types";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export class News extends Component {
+  //   capitalizeFLetter=(string)=> {
+
+  //     return (string[0].toUpperCase() +
+  //         string.slice(1));
+  // }
+  static defaultProps = {
+    country: "in",
+    pageSize: 8,
+    category: "general",
+  };
+  static propTypes = {
+    name: PropTypes.string,
+    pageSize: PropTypes.number,
+    category: PropTypes.string,
+  };
+
   articles = [];
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     console.log("Hi i am a constructor from news component");
     this.state = {
       articles: this.articles,
-      loading: false,
+      loading: true,
       page: 1,
+      totalResults: 0,
     };
+    document.title = `NewsNigger - ${
+      this.props.category.charAt(0).toUpperCase() + this.props.category.slice(1)
+    }`;
   }
+  //this is needed to fetch the data from News API and parse it into JSON and all of it is done asynchronously and it dynamically initiates the state variables of this news component. this runs after the rendering of the react class based components
   async componentDidMount() {
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    // let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    // let data = await fetch(url);
+    // let parsedData = await data.json();
+    // console.log(parsedData);
+    // this.setState({
+    //   articles: parsedData.articles,
+    //   totalResults: parsedData.totalResults,
+    //   loading: false,
+    // });
+    this.updateNews();
+  }
+
+  //This takes care of the same process componentDidMount() function does but AFTERR the initiation, i.e., moving next or prev
+  async updateNews() {
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url);
     let parsedData = await data.json();
     console.log(parsedData);
@@ -24,56 +61,61 @@ export class News extends Component {
       loading: false,
     });
   }
+
   //In React class components, it's a common practice to define methods without const or let before them, simply for brevity and consistency.
 
   handleNextClick = async () => {
-    const totalPages = Math.ceil(this.state.totalResults / this.props.pageSize);
-    console.log("Next");
     this.state.page = this.state.page + 1;
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-    this.setState({ loading: true });
-    let data = await fetch(url);
-    let parsedData = await data.json();
-    // this.setState({loading:false});
-    this.setState({ articles: parsedData.articles, loading: false });
+    this.updateNews();
   };
   handlePrevClick = async () => {
-    console.log("Prev");
     this.state.page = this.state.page - 1;
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-    this.setState({ loading: true });
+    this.updateNews();
+  };
+  fetchMoreData = async () => {
+    this.setState({ page: this.state.page + 1 });
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url);
     let parsedData = await data.json();
     console.log(parsedData);
-    this.setState({ articles: parsedData.articles, loading: false });
+    this.setState({
+      articles: this.state.articles.concat(parsedData.articles), //adds the new articles
+      totalResults: parsedData.totalResults,
+      // loading: false,
+    });
   };
-
   render() {
     return (
-      <div className="container">
-        <div className="container my-3">
-          <h1
-            className="container my-3"
-            id="top"
-            style={{ textAlign: "center" }}
-          >
-            Top Headlines
-          </h1>
-          {this.state.loading && <Spinner />}
+      <>
+        <h1
+          className="container my-3"
+          id="top"
+          style={{
+            fontFamily: "Bebas Neue",
+            fontWeight: "400",
+            fontStyle: "normal",
+            color: "red",
+            textAlign: "center",
+            fontSize: "58px",
+          }}
+        >
+          News Nigger - Top{" "}
+          {this.props.category.charAt(0).toUpperCase() +
+            this.props.category.slice(1)}{" "}
+          headlines
+        </h1>
+        {/* {this.state.loading && <Spinner />} */}
 
-          <button
-            type="button"
-            className="btn btn-dark"
-            style={{ padding: "10px" }}
-          >
-            <a href="#Last" style={{ textDecoration: "none", color: "white" }}>
-              Move to Bottom
-            </a>
-          </button>
-
-          <div className="row">
-            {!this.state.loading &&
-              this.state.articles.map((element) => {
+        {this.state.loading && <Spinner />}
+        <InfiniteScroll
+          dataLength={this.state.articles.length}
+          next={this.fetchMoreData}
+          hasMore={this.state.articles.length < this.state.totalResults}
+          loader={<Spinner />}
+        >
+          <div className="container">
+            <div className="row">
+              {this.state.articles.map((element) => {
                 const title = element.title
                   ? element.title
                   : "Title removed due to content restrictions.";
@@ -85,54 +127,31 @@ export class News extends Component {
                   : "https://images.indianexpress.com/2024/02/garlic-news-1600.jpg";
                 const newsUrl = element.url ? element.url : "";
                 return (
-                  <div className="col-md-4" key={newsUrl}>
+                  <div
+                    className="col-md-4"
+                    key={`${newsUrl}-${element.publishedAt}`}
+                  >
                     <NewsItem
                       title={title}
                       description={description}
                       imageUrl={imageUrl}
                       newsUrl={newsUrl}
+                      author={element.author}
+                      date={element.publishedAt}
                     />
                   </div>
                 );
               })}
+            </div>
           </div>
-          <div
-            className="container"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+          <button
+            className="btn btn-dark"
+            style={{ position: "fixed", bottom: "20px", right: "20px" }}
           >
-            <button
-              type="button"
-              className="btn btn-dark"
-              disabled={this.state.page == 1}
-              style={{ padding: "10px", width: "90px" }}
-              onClick={this.handlePrevClick}
-            >
-              <a href="#top" style={{ textDecoration: "none", color: "white" }}>
-                Prev &larr;
-              </a>
-            </button>
-            <button
-              type="button"
-              id="Last"
-              className="btn btn-dark"
-              style={{ padding: "10px", width: "90px" }}
-              onClick={this.handleNextClick}
-              disabled={
-                this.state.page + 1 >
-                Math.ceil(this.state.totalResults / this.props.pageSize)
-              }
-            >
-              <a href="#top" style={{ textDecoration: "none", color: "white" }}>
-                Next &rarr;
-              </a>
-            </button>
-          </div>
-        </div>
-      </div>
+            Move to Top
+          </button>
+        </InfiniteScroll>
+      </>
     );
   }
 }
