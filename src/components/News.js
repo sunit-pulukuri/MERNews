@@ -51,15 +51,21 @@ export class News extends Component {
 
   //This takes care of the same process componentDidMount() function does but AFTERR the initiation, i.e., moving next or prev
   async updateNews() {
-    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    this.props.setProgress(10);
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url);
+    
+    this.props.setProgress(40);
     let parsedData = await data.json();
-    console.log(parsedData);
+    
+    this.props.setProgress(60);
     this.setState({
       articles: parsedData.articles,
       totalResults: parsedData.totalResults,
       loading: false,
     });
+    
+    this.props.setProgress(100);
   }
 
   //In React class components, it's a common practice to define methods without const or let before them, simply for brevity and consistency.
@@ -74,7 +80,7 @@ export class News extends Component {
   };
   fetchMoreData = async () => {
     this.setState({ page: this.state.page + 1 });
-    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b06eee684ad74640a69188f4f5450fc9&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url);
     let parsedData = await data.json();
     console.log(parsedData);
@@ -147,8 +153,9 @@ export class News extends Component {
           <button
             className="btn btn-dark"
             style={{ position: "fixed", bottom: "20px", right: "20px" }}
+            
           >
-            Move to Top
+            <a href="#navtop" style={{textDecoration:"none", color:"white"}}>Move to Top</a>
           </button>
         </InfiniteScroll>
       </>

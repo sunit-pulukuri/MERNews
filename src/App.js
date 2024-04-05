@@ -4,26 +4,43 @@ import NavBar from "./components/NavBar.js";
 import News from "./components/News.js";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import LoadingBar from 'react-top-loading-bar'
 export default class App extends Component {
   pages = 15;
+  apiKey = process.env.REACT_APP_NEWS_API;
+
+  state = {
+    progress : 0
+  }
+
+  setProgress = (progress) =>{
+    this.setState({progress : progress})
+  }
+
+
   render() {
     return (
       <div>
         <BrowserRouter>
           <NavBar />
+          <LoadingBar
+        color='#f11946'
+        progress={this.state.progress}
+        onLoaderFinished={() => this.setProgress(0)}
+      />
           <Routes>
             <Route
               exact
               path="/"
               element={
-                <News key="/" pageSize={this.pages} country="in" category="" />
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey} key="/" pageSize={this.pages} country="in" category="" />
               }
             />
             <Route
               exact
               path="#"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="#"
                   pageSize={this.pages}
                   country="in"
@@ -35,7 +52,7 @@ export default class App extends Component {
               exact
               path="/home"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="general"
                   pageSize={this.pages}
                   country="in"
@@ -47,7 +64,7 @@ export default class App extends Component {
               exact
               path="/general"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="general"
                   pageSize={this.pages}
                   country="in"
@@ -59,7 +76,7 @@ export default class App extends Component {
               exact
               path="/business"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="business"
                   pageSize={this.pages}
                   country="in"
@@ -71,7 +88,7 @@ export default class App extends Component {
               exact
               path="/health"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="health"
                   pageSize={this.pages}
                   country="in"
@@ -83,7 +100,7 @@ export default class App extends Component {
               exact
               path="/science"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="science"
                   pageSize={this.pages}
                   country="in"
@@ -95,7 +112,7 @@ export default class App extends Component {
               exact
               path="/sports"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="sports"
                   pageSize={this.pages}
                   country="in"
@@ -107,7 +124,7 @@ export default class App extends Component {
               exact
               path="/technology"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="technology"
                   pageSize={this.pages}
                   country="in"
@@ -119,7 +136,7 @@ export default class App extends Component {
               exact
               path="/entertainment"
               element={
-                <News
+                <News setProgress = {this.setProgress} apiKey = {this.apiKey}
                   key="entertainment"
                   pageSize={this.pages}
                   country="in"
