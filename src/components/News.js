@@ -31,7 +31,7 @@ export class News extends Component {
       page: 1,
       totalResults: 0,
     };
-    document.title = `NewsNigger - ${
+    document.title = `MERNews - ${
       this.props.category.charAt(0).toUpperCase() + this.props.category.slice(1)
     }`;
   }
@@ -105,7 +105,7 @@ export class News extends Component {
             fontSize: "58px",
           }}
         >
-          News Nigger - Top{" "}
+          MERNews - Top{" "}
           {this.props.category.charAt(0).toUpperCase() +
             this.props.category.slice(1)}{" "}
           headlines
